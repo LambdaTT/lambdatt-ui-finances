@@ -1,179 +1,184 @@
 <template>
-  <div>
-    <div class="page-title">Resumo de Transações</div>
+  <q-card>
+    <q-card-section class="page-title">Resumo de Transações</q-card-section>
     <q-separator></q-separator>
-    <div class="row">
-      <div class="col-12 col-md-6">
-        <InputField type="daterange" Label="Período" v-model="params.daterange" :Default="fullMonth"></InputField>
+    <q-card-section>
+      <div class="row">
+        <div class="col-12 col-md-6">
+          <InputField type="daterange" Label="Período" v-model="params.daterange" :Default="fullMonth"></InputField>
+        </div>
+        <div class="col-12 col-md-6">
+          <InputField type="select" Label="Categoria" Icon="fas fa-tags" v-model="params.id_fnc_category"
+            :Options="categories" clearable></InputField>
+        </div>
       </div>
-      <div class="col-12 col-md-6">
-        <InputField type="select" Label="Categoria" Icon="fas fa-tags" v-model="params.id_fnc_category"
-          :Options="categories" clearable></InputField>
-      </div>
-    </div>
-    <q-separator></q-separator>
-    <div class="row q-my-md flex-center text-bold">
-      <q-card class="col q-pa-md q-mr-sm">
-        <div class="row">
-          <div class="col-auto row flex-center">
-            <q-icon name="trending_up" color="positive" size="md"></q-icon>
-          </div>
-          <div class="col q-px-sm">
-            <div class="text-positive">R$ {{ totalRevenue.number_format(2, ',', '.') }}</div>
-            <div>Receitas no período</div>
-          </div>
-        </div>
-      </q-card>
-      <q-card class="col q-pa-md">
-        <div class="row">
-          <div class="col-auto row flex-center">
-            <q-icon name="trending_down" color="negative" size="md"></q-icon>
-          </div>
-          <div class="col q-px-sm">
-            <div class="text-negative">R$ {{ totalExpenses.number_format(2, ',', '.') }}</div>
-            <div>Despesas no período</div>
-          </div>
-        </div>
-      </q-card>
-    </div>
-    <Card :Title="pageTitle" :Icon="pageIcon">
-      <!-- Card Actions -->
-      <template #actions>
-        <div class="row justify-end">
-          <div v-if="permissions.create" class="col-12 col-md-5">
-            <BtnDropdown Label="Adicionar" Icon="fas fa-plus" Color="positive" :AvailableActions="dropdownActions">
-            </BtnDropdown>
-          </div>
-        </div>
-      </template>
-
-      <!-- Table -->
-      <SimpleTable :Name="tableName" :Data="data.cashflow" v-model="Table" :Columns="columns" :RowActions="rowActions"
-        @search="loadData" Printable :IntervalRule="(p, c, n) => c?.dt_transaction != n?.dt_transaction || !!p == false"
-        :CustomResources="tableExtraResources">
-        <template #cell-value="row">
-          <div class="q-pa-sm text-center">
-            <span :class="`text-bold ${row.data.vl_transaction_value < 0 ? 'text-negative' : 'text-positive'}`">
-              {{ row.data.transactionValue }}
-            </span>
-          </div>
-        </template>
-
-        <template #interval-row="row">
-          <td class="text-right q-pa-md text-grey-8" :colspan="columns.length + 1">
-            <div v-if="!!row.data.previous">
-              <div>
-                <span class="text-caption text-bold">Saldo em {{ row.data.previous.dtTransaction }}:</span>
-              </div>
-              <div>
-                <span style="font-size:1.3em;"
-                  :class="`text-${valueClass(Number(data.balances[row.data.previous.dt_transaction]))}`">R$
-                  {{
-                    Number(data.balances[row.data.previous.dt_transaction]).number_format(2, ',', '.') }}</span>
-              </div>
+      <q-separator></q-separator>
+      <div class="row q-pa-sm flex-center text-bold">
+        <q-card class="col q-pa-md q-mr-sm">
+          <div class="row">
+            <div class="col-auto row flex-center">
+              <q-icon name="trending_up" color="positive" size="md"></q-icon>
             </div>
-            <div v-else>
-              <div>
-                <span class="text-caption text-bold">Saldo anterior:</span>
-              </div>
-              <div>
-                <span style="font-size:1.3em;" :class="`text-${valueClass(Number(data.previousBalance))}`">R$
-                  {{
-                    Number(data.previousBalance).number_format(2, ',', '.') }}</span>
-              </div>
+            <div class="col q-px-sm">
+              <div class="text-positive">R$ {{ totalRevenue.number_format(2, ',', '.') }}</div>
+              <div>Receitas no período</div>
             </div>
-          </td>
-        </template>
-      </SimpleTable>
-
-      <!-- Dialog: Edit/Delete options for repeated transacations: -->
-      <q-dialog backdrop-filter="blur(4px) contrast(40%)" v-model="actionModeModal">
-        <q-card>
-          <q-card-section class="row items-center q-pb-none">
-            <div class="text-h6">Modo de {{ actionName }}</div>
-            <q-space />
-            <q-btn icon="close" color="primary" flat round dense v-close-popup />
-          </q-card-section>
-
-          <q-card-section>
-            <p>Esta transação possui repetições, como deseja proceder?</p>
-          </q-card-section>
-
-          <q-card-section>
-            <q-option-group v-model="actionMode" :options="actionModes" color="primary" />
-          </q-card-section>
-
-          <q-card-actions align="right">
-            <q-btn flat label="Cancelar" @click="actionConfirm = false" color="primary" v-close-popup />
-            <q-btn flat label="Confirmar" @click="actionConfirm = true" color="primary" v-close-popup />
-          </q-card-actions>
+          </div>
         </q-card>
-      </q-dialog>
+        <q-card class="col q-pa-md">
+          <div class="row">
+            <div class="col-auto row flex-center">
+              <q-icon name="trending_down" color="negative" size="md"></q-icon>
+            </div>
+            <div class="col q-px-sm">
+              <div class="text-negative">R$ {{ totalExpenses.number_format(2, ',', '.') }}</div>
+              <div>Despesas no período</div>
+            </div>
+          </div>
+        </q-card>
+      </div>
+    </q-card-section>
+    <q-card-section>
+      <Card :Title="pageTitle" :Icon="pageIcon">
+        <!-- Card Actions -->
+        <template #actions>
+          <div class="row justify-end">
+            <div v-if="permissions.create" class="col-12 col-md-5">
+              <BtnDropdown Label="Adicionar" Icon="fas fa-plus" Color="positive" :AvailableActions="dropdownActions">
+              </BtnDropdown>
+            </div>
+          </div>
+        </template>
 
-      <!-- Modal: Transaction Form -->
-      <Modal :Title="`${!!edditingItemKey ? 'Dados da ' : 'Nova '}Transação`" Icon="fas fa-exchange" Persistent
-        v-model="showModal" @hide="resetInput" :Actions="modalActions" :HideActions="readonly">
-        <!-- Content -->
-        <div class="row">
-          <div class="col q-pa-sm">
-            <q-btn-toggle spread v-model="input.do_direction" toggle-color="primary" class="text-primary"
-              :disable="readonly" :options="[
-                { label: 'Entrada', value: 'I' },
-                { label: 'Saída', value: 'O' },
-              ]" />
+        <!-- Table -->
+        <SimpleTable :Name="tableName" :Data="data.cashflow" v-model="Table" :Columns="columns" :RowActions="rowActions"
+          @search="loadData" Printable
+          :IntervalRule="(p, c, n) => c?.dt_transaction != n?.dt_transaction || !!p == false"
+          :CustomResources="tableExtraResources">
+          <template #cell-value="row">
+            <div class="q-pa-sm text-center">
+              <span :class="`text-bold ${row.data.vl_transaction_value < 0 ? 'text-negative' : 'text-positive'}`">
+                {{ row.data.transactionValue }}
+              </span>
+            </div>
+          </template>
+
+          <template #interval-row="row">
+            <td class="text-right q-pa-md text-grey-8" :colspan="columns.length + 1">
+              <div v-if="!!row.data.previous">
+                <div>
+                  <span class="text-caption text-bold">Saldo em {{ row.data.previous.dtTransaction }}:</span>
+                </div>
+                <div>
+                  <span style="font-size:1.3em;"
+                    :class="`text-${valueClass(Number(data.balances[row.data.previous.dt_transaction]))}`">R$
+                    {{
+                      Number(data.balances[row.data.previous.dt_transaction]).number_format(2, ',', '.') }}</span>
+                </div>
+              </div>
+              <div v-else>
+                <div>
+                  <span class="text-caption text-bold">Saldo anterior:</span>
+                </div>
+                <div>
+                  <span style="font-size:1.3em;" :class="`text-${valueClass(Number(data.previousBalance))}`">R$
+                    {{
+                      Number(data.previousBalance).number_format(2, ',', '.') }}</span>
+                </div>
+              </div>
+            </td>
+          </template>
+        </SimpleTable>
+
+        <!-- Dialog: Edit/Delete options for repeated transacations: -->
+        <q-dialog backdrop-filter="blur(4px) contrast(40%)" v-model="actionModeModal">
+          <q-card>
+            <q-card-section class="row items-center q-pb-none">
+              <div class="text-h6">Modo de {{ actionName }}</div>
+              <q-space />
+              <q-btn icon="close" color="primary" flat round dense v-close-popup />
+            </q-card-section>
+
+            <q-card-section>
+              <p>Esta transação possui repetições, como deseja proceder?</p>
+            </q-card-section>
+
+            <q-card-section>
+              <q-option-group v-model="actionMode" :options="actionModes" color="primary" />
+            </q-card-section>
+
+            <q-card-actions align="right">
+              <q-btn flat label="Cancelar" @click="actionConfirm = false" color="primary" v-close-popup />
+              <q-btn flat label="Confirmar" @click="actionConfirm = true" color="primary" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+
+        <!-- Modal: Transaction Form -->
+        <Modal :Title="`${!!edditingItemKey ? 'Dados da ' : 'Nova '}Transação`" Icon="fas fa-exchange" Persistent
+          v-model="showModal" @hide="resetInput" :Actions="modalActions" :HideActions="readonly">
+          <!-- Content -->
+          <div class="row">
+            <div class="col q-pa-sm">
+              <q-btn-toggle spread v-model="input.do_direction" toggle-color="primary" class="text-primary"
+                :disable="readonly" :options="[
+                  { label: 'Entrada', value: 'I' },
+                  { label: 'Saída', value: 'O' },
+                ]" />
+            </div>
+            <div class="col-12">
+              <InputField type="text" Label="Valor" Icon="fas fa-dollar" Mask="#.##" FillMask="0" ReverseFillMask
+                v-model="input.vl_transaction_value" :readonly="readonly" :Error="inputError.vl_transaction_value"
+                @focus="inputError.vl_transaction_value = false">
+              </InputField>
+            </div>
+            <div class="col-12">
+              <InputField type="select" Label="Categoria" Icon="fas fa-tags" v-model="input.id_fnc_category"
+                :readonly="readonly" :Options="categories">
+              </InputField>
+            </div>
+            <div class="col-12">
+              <InputField type="text" Label="Descrição" Icon="fas fa-circle-info" v-model="input.tx_description"
+                :readonly="readonly" :Error="inputError.tx_description" @focus="inputError.tx_description = false">
+              </InputField>
+            </div>
+            <div class="col-12">
+              <InputField type="date" Label="Data" v-model="input.dt_transaction" :readonly="readonly"
+                :Error="inputError.dt_transaction" @focus="inputError.dt_transaction = false">
+              </InputField>
+            </div>
+            <div class="col-12 q-pa-sm">
+              <q-toggle v-model="controls.repeat" :disable="readonly" label="Repetir Transação"
+                @update:model-value="resetRepetition"></q-toggle>
+            </div>
           </div>
-          <div class="col-12">
-            <InputField type="text" Label="Valor" Icon="fas fa-dollar" Mask="#.##" FillMask="0" ReverseFillMask
-              v-model="input.vl_transaction_value" :readonly="readonly" :Error="inputError.vl_transaction_value"
-              @focus="inputError.vl_transaction_value = false">
-            </InputField>
+          <q-separator></q-separator>
+          <div class="row">
+            <div class="col-12">
+              <InputField :disable="!controls.repeat" type="select" Label="Frequência" Icon="fas fa-calendar-alt"
+                v-model="input.do_periodicity" :Options="periodicity" :readonly="readonly" :Error="periodicityError"
+                @focus="periodicityError = false">
+              </InputField>
+            </div>
+            <div class="col-12 q-pa-sm">
+              <q-toggle v-model="input.isRecurrence" :disable="readonly || !controls.repeat"
+                label="Repetir Indefinidamente" false-value="N" true-value="Y"
+                @update:model-value="input.nr_installments = null"></q-toggle>
+            </div>
+            <div class="col-12">
+              <InputField :disable="!controls.repeat || input.isRecurrence == 'Y'" type="number" Label="Nº de Parcelas"
+                Icon="fas fa-layer-group" v-model="input.nr_installments" :Error="installmentsError"
+                @focus="installmentsError = false" :readonly="readonly">
+              </InputField>
+            </div>
           </div>
-          <div class="col-12">
-            <InputField type="select" Label="Categoria" Icon="fas fa-tags" v-model="input.id_fnc_category"
-              :readonly="readonly" :Options="categories">
-            </InputField>
-          </div>
-          <div class="col-12">
-            <InputField type="text" Label="Descrição" Icon="fas fa-circle-info" v-model="input.tx_description"
-              :readonly="readonly" :Error="inputError.tx_description" @focus="inputError.tx_description = false">
-            </InputField>
-          </div>
-          <div class="col-12">
-            <InputField type="date" Label="Data" v-model="input.dt_transaction" :readonly="readonly"
-              :Error="inputError.dt_transaction" @focus="inputError.dt_transaction = false">
-            </InputField>
-          </div>
-          <div class="col-12 q-pa-sm">
-            <q-toggle v-model="controls.repeat" :disable="readonly" label="Repetir Transação"
-              @update:model-value="resetRepetition"></q-toggle>
-          </div>
-        </div>
-        <q-separator></q-separator>
-        <div class="row">
-          <div class="col-12">
-            <InputField :disable="!controls.repeat" type="select" Label="Frequência" Icon="fas fa-calendar-alt"
-              v-model="input.do_periodicity" :Options="periodicity" :readonly="readonly" :Error="periodicityError"
-              @focus="periodicityError = false">
-            </InputField>
-          </div>
-          <div class="col-12 q-pa-sm">
-            <q-toggle v-model="input.isRecurrence" :disable="readonly || !controls.repeat"
-              label="Repetir Indefinidamente" false-value="N" true-value="Y"
-              @update:model-value="input.nr_installments = null"></q-toggle>
-          </div>
-          <div class="col-12">
-            <InputField :disable="!controls.repeat || input.isRecurrence == 'Y'" type="number" Label="Nº de Parcelas"
-              Icon="fas fa-layer-group" v-model="input.nr_installments" :Error="installmentsError"
-              @focus="installmentsError = false" :readonly="readonly">
-            </InputField>
-          </div>
-        </div>
-        <q-separator></q-separator>
-        <!-- Audit Data -->
-        <Auditinfo v-if="!!edditingItemKey && readonly" :input="audit"></Auditinfo>
-      </Modal>
-    </Card>
-  </div>
+          <q-separator></q-separator>
+          <!-- Audit Data -->
+          <Auditinfo v-if="!!edditingItemKey && readonly" :input="audit"></Auditinfo>
+        </Modal>
+      </Card>
+    </q-card-section>
+  </q-card>
 </template>
 <script>
 // Services:
@@ -194,7 +199,7 @@ const delete_message = 'A transação foi excluída com sucesso';
 import Auditinfo from 'src/modules/lambdatt-ui-iam/components/auditinfo.vue'
 
 export default {
-  name: 'components-analytics-finances-transactions',
+  name: 'finances-components-transactions',
 
   components: {
     Auditinfo,
@@ -331,7 +336,7 @@ export default {
     dropdownActions() {
       return [
         { label: "Nova transação", icon: 'fas fa-exchange', tooltip: 'Registrar uma transação', fn: () => { this.showModal = true } },
-        { label: "Importar xls", icon: 'fas fa-file-excel', tooltip: 'Importar um arquivo de retorno' }
+        // { label: "Importar xls", icon: 'fas fa-file-excel', tooltip: 'Importar um arquivo de retorno' }
       ]
     },
 

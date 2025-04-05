@@ -6,7 +6,7 @@
 <script>
 // Services:
 import { auth, permissions } from 'src/modules/lambdatt-ui-iam/services.js'
-import Category from 'src/components/analytics/finances/transactions-category.vue';
+import Category from '../components/categories.vue';
 
 export default {
   name: 'finances-pages-category',

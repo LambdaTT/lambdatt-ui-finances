@@ -43,7 +43,7 @@ const table_name = 'analytics-finances-transactions-category';
 import Auditinfo from 'src/modules/lambdatt-ui-iam/components/auditinfo.vue'
 
 export default {
-  name: 'components-analytics-finances-transactions-category',
+  name: 'finances-components-categories',
 
   components: {
     Auditinfo,

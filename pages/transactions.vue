@@ -6,7 +6,7 @@
 <script>
 // Services:
 import { auth, permissions } from 'src/modules/lambdatt-ui-iam/services.js'
-import Transactions from 'src/components/analytics/finances/transactions.vue';
+import Transactions from '../components/transactions.vue';
 
 export default {
   name: 'finances-pages-transactions',
