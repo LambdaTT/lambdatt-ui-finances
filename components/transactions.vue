@@ -51,12 +51,12 @@
         </template>
 
         <!-- Table -->
-        <SimpleTable :Name="tableName" :Data="data.cashflow" v-model="Table" :Columns="columns" :RowActions="rowActions"
-          @search="loadData" Printable
+        <SimpleTable dense :Name="tableName" :Data="data.cashflow" v-model="Table" :Columns="columns"
+          :RowActions="rowActions" @search="loadData" Printable
           :IntervalRule="(p, c, n) => c?.dt_transaction != n?.dt_transaction || !!p == false"
           :CustomResources="tableExtraResources">
           <template #cell-value="row">
-            <div class="q-pa-sm text-center">
+            <div class="text-center">
               <span :class="`text-bold ${row.data.vl_transaction_value < 0 ? 'text-negative' : 'text-positive'}`">
                 {{ row.data.transactionValue }}
               </span>
@@ -64,7 +64,7 @@
           </template>
 
           <template #interval-row="row">
-            <td class="text-right q-pa-md text-grey-8" :colspan="columns.length + 1">
+            <div class="text-right q-pa-xs text-grey-8" :colspan="columns.length + 1">
               <div v-if="!!row.data.previous">
                 <div>
                   <span class="text-caption text-bold">Saldo em {{ row.data.previous.dtTransaction }}:</span>
@@ -75,6 +75,7 @@
                     {{
                       Number(data.balances[row.data.previous.dt_transaction]).number_format(2, ',', '.') }}</span>
                 </div>
+                <q-separator></q-separator>
               </div>
               <div v-else>
                 <div>
@@ -86,7 +87,7 @@
                       Number(data.previousBalance).number_format(2, ',', '.') }}</span>
                 </div>
               </div>
-            </td>
+            </div>
           </template>
         </SimpleTable>
 
