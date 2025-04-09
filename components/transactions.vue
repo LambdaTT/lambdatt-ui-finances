@@ -3,6 +3,7 @@
     <q-card-section class="page-title">Resumo de Transações</q-card-section>
     <q-separator></q-separator>
     <q-card-section>
+      <!-- Filter Controls -->
       <div class="row">
         <div class="col-12 col-md-6">
           <InputField type="daterange" Label="Período" v-model="params.daterange" :Default="fullMonth"></InputField>
@@ -12,7 +13,10 @@
             :Options="categories" clearable></InputField>
         </div>
       </div>
+
       <q-separator></q-separator>
+
+      <!-- Expenses/Revenue Counters -->
       <div class="row q-pa-sm flex-center text-bold">
         <q-card class="col q-pa-md q-mr-sm">
           <div class="row">
@@ -53,7 +57,7 @@
         <!-- Table -->
         <SimpleTable dense :Name="tableName" :Data="data.cashflow" v-model="Table" :Columns="columns"
           :RowActions="rowActions" @search="loadData" Printable
-          :IntervalRule="(p, c, n) => c?.dt_transaction != n?.dt_transaction || !!p == false"
+          :IntervalRule="(p, c, n) => c?.dt_transaction != n?.dt_transaction || !!c === false"
           :CustomResources="tableExtraResources">
           <template #cell-value="row">
             <div class="text-center">
@@ -447,12 +451,16 @@ export default {
       }
     },
 
-    editItem(item) {
+    editItem(_item) {
+      var item = { ..._item };
+
       this.showModal = true;
       setTimeout(() => {
         this.edditingItemKey = item.ds_key;
         if (item.isRepetition == 'Y')
           this.controls.repeat = true;
+
+        item.vl_transaction_value = item.vl_transaction_value.toFixed(2);
         // Read Input-related fields
         for (let key in this.input) {
           if (key in item) {
