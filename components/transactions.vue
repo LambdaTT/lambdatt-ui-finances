@@ -248,6 +248,7 @@ export default {
         nr_installments: null,
         do_periodicity: null,
         isRecurrence: 'N',
+        refDate: null
       },
       inputError: {
         dt_transaction: false,
@@ -457,6 +458,8 @@ export default {
       this.showModal = true;
       setTimeout(() => {
         this.edditingItemKey = item.ds_key;
+        this.input.refDate = item.dt_transaction;
+
         if (item.isRepetition == 'Y')
           this.controls.repeat = true;
 
@@ -514,6 +517,7 @@ export default {
             position: 'top-right'
           })
         } else {
+          delete data.refDate;
           //CREATE
           await this.$http.post(`/api/finances/ledger/v1/entry/${type}`, data);
           this.$utils.notify({
@@ -619,6 +623,7 @@ export default {
 
     resetInput() {
       this.edditingItemKey = null;
+      this.readonly = false;
 
       this.input = {
         do_direction: 'I',
@@ -629,6 +634,7 @@ export default {
         nr_installments: null,
         do_periodicity: null,
         isRecurrence: 'N',
+        refDate: null
       }
 
       this.inputError = {
