@@ -125,10 +125,11 @@
           <!-- Content -->
           <div class="row">
             <div class="col q-pa-sm">
-              <q-btn-toggle spread v-model="input.do_direction" toggle-color="primary" class="text-primary"
-                :disable="readonly" :options="[
-                  { label: 'Entrada', value: 'I' },
-                  { label: 'Saída', value: 'O' },
+              <q-btn-toggle spread v-model="input.do_direction"
+                :toggle-color="`${input.do_direction == 'I' ? 'positive' : 'negative'}`"
+                :class="`text-${input.do_direction == 'I' ? 'positive' : 'negative'}`" :disable="readonly" :options="[
+                  { label: 'Receita', value: 'I', icon: 'fas fa-plus' },
+                  { label: 'Despesa', value: 'O', icon: 'fas fa-minus' },
                 ]" />
             </div>
             <div class="col-12">
