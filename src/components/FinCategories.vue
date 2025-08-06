@@ -1,5 +1,5 @@
 <template>
-  <Card :Title="pageTitle" :Icon="pageIcon">
+  <La1Card :Title="pageTitle" :Icon="pageIcon">
     <template #actions>
       <div class="row justify-end">
         <div v-if="permissions.create" class="col-12 col-md-5">
@@ -13,7 +13,7 @@
     </DataTable>
 
     <!-- Modal -->
-    <Modal :Title="`${!!edditingItemKey ? '' : 'Nova '}Categoria de Transação`" Icon="fas fa-tags" Persistent
+    <La1Modal :Title="`${!!edditingItemKey ? '' : 'Nova '}Categoria de Transação`" Icon="fas fa-tags" Persistent
       v-model="showModal" :Actions="modalActions" @hide="resetInput" :HideActions="readonly">
       <!-- Content -->
       <InputField type="text" Label="Nome" Icon="fas fa-dollar" v-model="input.ds_title" :readonly="readonly"
@@ -23,31 +23,20 @@
         :readonly="readonly">
       </InputField>
       <!-- Audit Data -->
-      <Auditinfo v-if="!!edditingItemKey && readonly" :input="audit"></Auditinfo>
-    </Modal>
-  </Card>
+      <IamAuditInfo v-if="!!edditingItemKey && readonly" :input="audit"></IamAuditInfo>
+    </La1Modal>
+  </La1Card>
 </template>
 <script>
-// Services:
-import { auth, permissions } from 'src/modules/lambdatt-ui-iam/services.js'
-import { ENDPOINTS } from 'src/services/endpoints'
 
 // ------- Page Config:
 const page_title = 'Categorias';
 const page_icon = 'fas fa-tags'
-const entity_endpoint = ENDPOINTS.FIN.CATEGORY;
 const table_name = 'analytics-finances-transactions-category';
 // -------
 
-// Components:
-import Auditinfo from 'src/modules/lambdatt-ui-iam/components/auditinfo.vue'
-
 export default {
   name: 'finances-components-categories',
-
-  components: {
-    Auditinfo,
-  },
 
   data() {
     return {
@@ -80,14 +69,14 @@ export default {
   computed: {
     permissions() {
       return {
-        create: permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'C' }),
-        update: permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'U' }),
-        delete: permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'D' }),
+        create: this.$iam.services.permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'C' }),
+        update: this.$iam.services.permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'U' }),
+        delete: this.$iam.services.permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'D' }),
       }
     },
 
     endpoint() {
-      return entity_endpoint;
+      return this.$finances.ENDPOINTS.FIN.CATEGORY;
     },
 
     tableName() {
@@ -152,7 +141,7 @@ export default {
 
     async save() {
       // Validation
-      if (!this.$utils.validateForm(this.input, this.inputError)) { return false };
+      if (!this.$toolcase.services.utils.validateForm(this.input, this.inputError)) { return false };
 
       // Emitting the loading event
       this.$emit('load', 'item-save');
@@ -167,16 +156,16 @@ export default {
       try {
         if (!!this.edditingItemKey) {
           // UPDATE
-          await this.$http.put(`${ENDPOINTS.FIN.CATEGORY}/${this.edditingItemKey}`, data);
-          this.$utils.notify({
+          await this.$toolcase.services.http.put(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${this.edditingItemKey}`, data);
+          this.$toolcase.services.utils.notify({
             message: 'A categoria foi atualizada com sucesso',
             type: 'positive',
             position: 'top-right'
           })
         } else {
           //CREATE
-          await this.$http.post(ENDPOINTS.FIN.CATEGORY, data)
-          this.$utils.notify({
+          await this.$toolcase.services.http.post(this.$finances.ENDPOINTS.FIN.CATEGORY, data)
+          this.$toolcase.services.utils.notify({
             message: 'A categoria foi criada com sucesso',
             type: 'positive',
             position: 'top-right'
@@ -185,7 +174,7 @@ export default {
         await this.Datatable.reload();
         this.showModal = false;
       } catch (error) {
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error('An error occurred while attempting to create/update the object.', error);
       } finally {
         // Finalizing the loading event
@@ -202,15 +191,15 @@ export default {
 
       // Api Request
       try {
-        await this.$http.delete(`${ENDPOINTS.FIN.CATEGORY}/${data.ds_key}`);
-        this.$utils.notify({
+        await this.$toolcase.services.http.delete(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${data.ds_key}`);
+        this.$toolcase.services.utils.notify({
           message: 'A categoria foi excluída com sucesso',
           type: 'positive',
           position: 'top-right'
         });
         this.Datatable.reload();
       } catch (error) {
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error("An error occurred while attempting to delete the object.", error);
       } finally {
         // Finalizing the loading event

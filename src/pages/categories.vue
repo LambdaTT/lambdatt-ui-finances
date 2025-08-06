@@ -1,19 +1,11 @@
 <template>
-  <Page Title="Finanças" :Breadcrumb="breadcrumb">
-    <Category></Category>
-  </Page>
+  <La1Page Title="Finanças" :Breadcrumb="breadcrumb">
+    <FinCategories></FinCategories>
+  </La1Page>
 </template>
 <script>
-// Services:
-import { auth, permissions } from 'src/modules/lambdatt-ui-iam/services.js'
-import Category from '../components/categories.vue';
-
 export default {
   name: 'finances-pages-category',
-
-  components: {
-    Category,
-  },
 
   computed: {
     breadcrumb() {
@@ -25,7 +17,7 @@ export default {
   },
 
   mounted() {
-    auth.authenticate(this);
+    this.$iam.services.auth.authenticate(this);
     // if (!permissions.canExecute('geral-ver-relatorios-dg2e1o2f2a1d8')) this.$router.push('/forbidden');
   },
 }

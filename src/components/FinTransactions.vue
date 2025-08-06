@@ -43,7 +43,7 @@
       </div>
     </q-card-section>
     <q-card-section>
-      <Card :Title="pageTitle" :Icon="pageIcon">
+      <La1Card :Title="pageTitle" :Icon="pageIcon">
         <!-- Card Actions -->
         <template #actions>
           <div class="row justify-end">
@@ -120,7 +120,7 @@
         </q-dialog>
 
         <!-- Modal: Transaction Form -->
-        <Modal :Title="`${!!edditingItemKey ? 'Dados da ' : 'Nova '}Transação`" Icon="fas fa-exchange" Persistent
+        <La1Modal :Title="`${!!edditingItemKey ? 'Dados da ' : 'Nova '}Transação`" Icon="fas fa-exchange" Persistent
           v-model="showModal" @hide="resetInput" :Actions="modalActions" :HideActions="readonly">
           <!-- Content -->
           <div class="row">
@@ -180,16 +180,13 @@
           </div>
           <q-separator></q-separator>
           <!-- Audit Data -->
-          <Auditinfo v-if="!!edditingItemKey && readonly" :input="audit"></Auditinfo>
-        </Modal>
-      </Card>
+          <IamAuditInfo v-if="!!edditingItemKey && readonly" :input="audit"></IamAuditInfo>
+        </La1Modal>
+      </La1Card>
     </q-card-section>
   </q-card>
 </template>
 <script>
-// Services:
-import { permissions } from 'src/modules/lambdatt-ui-iam/services.js'
-import { ENDPOINTS } from 'src/services/endpoints'
 
 // ------- Page Config:
 const page_title = 'Fluxo de Caixa';
@@ -201,15 +198,8 @@ const update_message = 'A transação foi atualizada com sucesso';
 const delete_message = 'A transação foi excluída com sucesso';
 // -------
 
-// Components:
-import Auditinfo from 'src/modules/lambdatt-ui-iam/components/auditinfo.vue'
-
 export default {
   name: 'finances-components-transactions',
-
-  components: {
-    Auditinfo,
-  },
 
   props: {
     AccountId: String,
@@ -311,9 +301,9 @@ export default {
 
     permissions() {
       return {
-        create: permissions.validatePermissions({ 'FNC_TRANSACTION': 'C' }),
-        update: permissions.validatePermissions({ 'FNC_TRANSACTION': 'U' }),
-        delete: permissions.validatePermissions({ 'FNC_TRANSACTION': 'D' }),
+        create: this.$iam.services.permissions.validatePermissions({ 'FNC_TRANSACTION': 'C' }),
+        update: this.$iam.services.permissions.validatePermissions({ 'FNC_TRANSACTION': 'U' }),
+        delete: this.$iam.services.permissions.validatePermissions({ 'FNC_TRANSACTION': 'D' }),
       }
     },
 
@@ -391,8 +381,8 @@ export default {
       const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
       return {
-        from: this.$utils.dateFormat(firstDay, 'y-m-d'),
-        to: this.$utils.dateFormat(lastDay, 'y-m-d')
+        from: this.$toolcase.services.utils.dateFormat(firstDay, 'y-m-d'),
+        to: this.$toolcase.services.utils.dateFormat(lastDay, 'y-m-d')
       };
 
     },
@@ -427,11 +417,11 @@ export default {
       const url = `/api/finances/ledger/v1/ledger`;
 
       try {
-        var response = await this.$http.get(url, this.filters);
+        var response = await this.$toolcase.services.http.get(url, this.filters);
         this.data = response.data;
       } catch (error) {
         this.Table.setError(error);
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error("An error occurred while attempting to retrieve the object's data.", error);
       } finally {
         this.Table.loadState(false);
@@ -440,7 +430,7 @@ export default {
 
     async getCategories() {
       try {
-        const response = await this.$http.get(ENDPOINTS.FIN.CATEGORY)
+        const response = await this.$toolcase.services.http.get(this.$finances.ENDPOINTS.FIN.CATEGORY)
         if (response && response.data) {
           this.categories = response.data.map((cat) => ({
             label: cat.ds_title,
@@ -448,7 +438,7 @@ export default {
           }));
         }
       } catch (error) {
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error("An error occurred while attempting to retrieve the object's data.", error);
       }
     },
@@ -491,7 +481,7 @@ export default {
         if (confirm === false) return false;
       }
       // Validation
-      if (!this.$utils.validateForm(this.input, this.inputError) |
+      if (!this.$toolcase.services.utils.validateForm(this.input, this.inputError) |
         !this.validateRepetition()) {
         return false
       };
@@ -511,8 +501,8 @@ export default {
 
         if (!!this.edditingItemKey) {
           // UPDATE
-          await this.$http.put(`/api/finances/ledger/v1/entry/${this.edditingItemKey}/${mode}`, data);
-          this.$utils.notify({
+          await this.$toolcase.services.http.put(`/api/finances/ledger/v1/entry/${this.edditingItemKey}/${mode}`, data);
+          this.$toolcase.services.utils.notify({
             message: update_message,
             type: 'positive',
             position: 'top-right'
@@ -520,8 +510,8 @@ export default {
         } else {
           delete data.refDate;
           //CREATE
-          await this.$http.post(`/api/finances/ledger/v1/entry/${type}`, data);
-          this.$utils.notify({
+          await this.$toolcase.services.http.post(`/api/finances/ledger/v1/entry/${type}`, data);
+          this.$toolcase.services.utils.notify({
             message: create_message,
             type: 'positive',
             position: 'top-right'
@@ -531,7 +521,7 @@ export default {
         this.loadData();
         this.showModal = false;
       } catch (error) {
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error(error);
         this.Table.loadState(false);
       }
@@ -580,8 +570,8 @@ export default {
 
       // Api Request
       try {
-        await this.$http.delete(`/api/finances/ledger/v1/entry/${data.ds_key}/${mode}/${data.dt_transaction}`);
-        this.$utils.notify({
+        await this.$toolcase.services.http.delete(`/api/finances/ledger/v1/entry/${data.ds_key}/${mode}/${data.dt_transaction}`);
+        this.$toolcase.services.utils.notify({
           message: delete_message,
           type: 'positive',
           position: 'top-right'
@@ -589,7 +579,7 @@ export default {
 
         this.loadData();
       } catch (error) {
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error("An error occurred while attempting to delete the object.", error);
         this.Table.loadState(false);
       }
