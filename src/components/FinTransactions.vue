@@ -187,6 +187,7 @@
   </q-card>
 </template>
 <script>
+import ENDPOINTS from '../ENDPOINTS';
 
 // ------- Page Config:
 const page_title = 'Fluxo de Caixa';
@@ -333,7 +334,6 @@ export default {
     dropdownActions() {
       return [
         { label: "Nova transação", icon: 'fas fa-exchange', tooltip: 'Registrar uma transação', fn: () => { this.showModal = true } },
-        // { label: "Importar xls", icon: 'fas fa-file-excel', tooltip: 'Importar um arquivo de retorno' }
       ]
     },
 
@@ -414,10 +414,8 @@ export default {
     async loadData() {
       this.Table.loadState(true);
 
-      const url = `/api/finances/ledger/v1/ledger`;
-
       try {
-        var response = await this.$getService('toolcase/http').get(url, this.filters);
+        var response = await this.$getService('toolcase/http').get(ENDPOINTS.LEDGER, this.filters);
         this.data = response.data;
       } catch (error) {
         this.Table.setError(error);
@@ -430,7 +428,7 @@ export default {
 
     async getCategories() {
       try {
-        const response = await this.$getService('toolcase/http').get(this.$finances.ENDPOINTS.FIN.CATEGORY)
+        const response = await this.$getService('toolcase/http').get(ENDPOINTS.CATEGORY)
         if (response && response.data) {
           this.categories = response.data.map((cat) => ({
             label: cat.ds_title,
@@ -501,7 +499,7 @@ export default {
 
         if (!!this.edditingItemKey) {
           // UPDATE
-          await this.$getService('toolcase/http').put(`/api/finances/ledger/v1/entry/${this.edditingItemKey}/${mode}`, data);
+          await this.$getService('toolcase/http').put(`${ENDPOINTS.ENTRY}/${this.edditingItemKey}/${mode}`, data);
           this.$getService('toolcase/utils').notify({
             message: update_message,
             type: 'positive',
@@ -510,7 +508,7 @@ export default {
         } else {
           delete data.refDate;
           //CREATE
-          await this.$getService('toolcase/http').post(`/api/finances/ledger/v1/entry/${type}`, data);
+          await this.$getService('toolcase/http').post(`${ENDPOINTS.ENTRY}/${type}`, data);
           this.$getService('toolcase/utils').notify({
             message: create_message,
             type: 'positive',
@@ -570,7 +568,7 @@ export default {
 
       // Api Request
       try {
-        await this.$getService('toolcase/http').delete(`/api/finances/ledger/v1/entry/${data.ds_key}/${mode}/${data.dt_transaction}`);
+        await this.$getService('toolcase/http').delete(`${ENDPOINTS.ENTRY}/${data.ds_key}/${mode}/${data.dt_transaction}`);
         this.$getService('toolcase/utils').notify({
           message: delete_message,
           type: 'positive',

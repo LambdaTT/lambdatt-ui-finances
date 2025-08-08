@@ -9,7 +9,8 @@
         </div>
       </div>
     </template>
-    <DataTable :Name="tableName" :DataURL="endpoint" v-model="Datatable" :Columns="columns" :RowActions="rowActions">
+    <DataTable :Name="tableName" :DataURL="ENDPOINTS.CATEGORY" v-model="Datatable" :Columns="columns"
+      :RowActions="rowActions">
     </DataTable>
 
     <!-- Modal -->
@@ -28,6 +29,7 @@
   </La1Card>
 </template>
 <script>
+import ENDPOINTS from '../ENDPOINTS';
 
 // ------- Page Config:
 const page_title = 'Categorias';
@@ -63,20 +65,18 @@ export default {
       // Modal
       showModal: false,
       edditingItemKey: null,
+
+      ENDPOINTS
     }
   },
 
   computed: {
     permissions() {
       return {
-        create: this.$getService('iam/permissions').validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'C' }),
-        update: this.$getService('iam/permissions').validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'U' }),
-        delete: this.$getService('iam/permissions').validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'D' }),
+        create: this.$getService('iam/permissions').validatePermissions({ 'FNC_CATEGORY': 'C' }),
+        update: this.$getService('iam/permissions').validatePermissions({ 'FNC_CATEGORY': 'U' }),
+        delete: this.$getService('iam/permissions').validatePermissions({ 'FNC_CATEGORY': 'D' }),
       }
-    },
-
-    endpoint() {
-      return this.$finances.ENDPOINTS.FIN.CATEGORY;
     },
 
     tableName() {
@@ -156,7 +156,7 @@ export default {
       try {
         if (!!this.edditingItemKey) {
           // UPDATE
-          await this.$getService('toolcase/http').put(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${this.edditingItemKey}`, data);
+          await this.$getService('toolcase/http').put(`${ENDPOINTS.CATEGORY}/${this.edditingItemKey}`, data);
           this.$getService('toolcase/utils').notify({
             message: 'A categoria foi atualizada com sucesso',
             type: 'positive',
@@ -164,7 +164,7 @@ export default {
           })
         } else {
           //CREATE
-          await this.$getService('toolcase/http').post(this.$finances.ENDPOINTS.FIN.CATEGORY, data)
+          await this.$getService('toolcase/http').post(ENDPOINTS.CATEGORY, data)
           this.$getService('toolcase/utils').notify({
             message: 'A categoria foi criada com sucesso',
             type: 'positive',
@@ -191,7 +191,7 @@ export default {
 
       // Api Request
       try {
-        await this.$getService('toolcase/http').delete(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${data.ds_key}`);
+        await this.$getService('toolcase/http').delete(`${ENDPOINTS.CATEGORY}/${data.ds_key}`);
         this.$getService('toolcase/utils').notify({
           message: 'A categoria foi excluída com sucesso',
           type: 'positive',

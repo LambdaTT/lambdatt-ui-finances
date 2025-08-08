@@ -17,8 +17,13 @@ export default {
   },
 
   mounted() {
-    this.$getService('iam/auth').authenticate(this);
-    // if (!permissions.canExecute('geral-ver-relatorios-dg2e1o2f2a1d8')) this.$router.push('/forbidden');
+    this.$getService('iam/auth').authenticate();
+    if (this.$moduleExists('iam')) {
+      const permissions = this.$getService('iam/permissions');
+      if (!permissions.validatePermissions({ 'FNC_CATEGORY': 'R' })) {
+        this.$router.push('/forbidden');
+      }
+    }
   },
 }
 </script>
