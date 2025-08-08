@@ -17,7 +17,7 @@ export default {
   },
 
   mounted() {
-    this.$iam.services.auth.authenticate(this);
+    this.$getService('iam/auth').authenticate(this);
     // if (!permissions.canExecute('geral-ver-relatorios-dg2e1o2f2a1d8')) this.$router.push('/forbidden');
   },
 }

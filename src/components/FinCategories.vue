@@ -69,9 +69,9 @@ export default {
   computed: {
     permissions() {
       return {
-        create: this.$iam.services.permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'C' }),
-        update: this.$iam.services.permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'U' }),
-        delete: this.$iam.services.permissions.validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'D' }),
+        create: this.$getService('iam/permissions').validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'C' }),
+        update: this.$getService('iam/permissions').validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'U' }),
+        delete: this.$getService('iam/permissions').validatePermissions({ 'FIN_TRANSACTIONS_CATEGORY': 'D' }),
       }
     },
 
@@ -141,7 +141,7 @@ export default {
 
     async save() {
       // Validation
-      if (!this.$toolcase.services.utils.validateForm(this.input, this.inputError)) { return false };
+      if (!this.$getService('toolcase/utils').validateForm(this.input, this.inputError)) { return false };
 
       // Emitting the loading event
       this.$emit('load', 'item-save');
@@ -156,16 +156,16 @@ export default {
       try {
         if (!!this.edditingItemKey) {
           // UPDATE
-          await this.$toolcase.services.http.put(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${this.edditingItemKey}`, data);
-          this.$toolcase.services.utils.notify({
+          await this.$getService('toolcase/http').put(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${this.edditingItemKey}`, data);
+          this.$getService('toolcase/utils').notify({
             message: 'A categoria foi atualizada com sucesso',
             type: 'positive',
             position: 'top-right'
           })
         } else {
           //CREATE
-          await this.$toolcase.services.http.post(this.$finances.ENDPOINTS.FIN.CATEGORY, data)
-          this.$toolcase.services.utils.notify({
+          await this.$getService('toolcase/http').post(this.$finances.ENDPOINTS.FIN.CATEGORY, data)
+          this.$getService('toolcase/utils').notify({
             message: 'A categoria foi criada com sucesso',
             type: 'positive',
             position: 'top-right'
@@ -174,7 +174,7 @@ export default {
         await this.Datatable.reload();
         this.showModal = false;
       } catch (error) {
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
         console.error('An error occurred while attempting to create/update the object.', error);
       } finally {
         // Finalizing the loading event
@@ -191,15 +191,15 @@ export default {
 
       // Api Request
       try {
-        await this.$toolcase.services.http.delete(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${data.ds_key}`);
-        this.$toolcase.services.utils.notify({
+        await this.$getService('toolcase/http').delete(`${this.$finances.ENDPOINTS.FIN.CATEGORY}/${data.ds_key}`);
+        this.$getService('toolcase/utils').notify({
           message: 'A categoria foi excluída com sucesso',
           type: 'positive',
           position: 'top-right'
         });
         this.Datatable.reload();
       } catch (error) {
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
         console.error("An error occurred while attempting to delete the object.", error);
       } finally {
         // Finalizing the loading event

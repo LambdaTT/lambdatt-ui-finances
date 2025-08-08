@@ -301,9 +301,9 @@ export default {
 
     permissions() {
       return {
-        create: this.$iam.services.permissions.validatePermissions({ 'FNC_TRANSACTION': 'C' }),
-        update: this.$iam.services.permissions.validatePermissions({ 'FNC_TRANSACTION': 'U' }),
-        delete: this.$iam.services.permissions.validatePermissions({ 'FNC_TRANSACTION': 'D' }),
+        create: this.$getService('iam/permissions').validatePermissions({ 'FNC_TRANSACTION': 'C' }),
+        update: this.$getService('iam/permissions').validatePermissions({ 'FNC_TRANSACTION': 'U' }),
+        delete: this.$getService('iam/permissions').validatePermissions({ 'FNC_TRANSACTION': 'D' }),
       }
     },
 
@@ -381,8 +381,8 @@ export default {
       const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
       return {
-        from: this.$toolcase.services.utils.dateFormat(firstDay, 'y-m-d'),
-        to: this.$toolcase.services.utils.dateFormat(lastDay, 'y-m-d')
+        from: this.$getService('toolcase/utils').dateFormat(firstDay, 'y-m-d'),
+        to: this.$getService('toolcase/utils').dateFormat(lastDay, 'y-m-d')
       };
 
     },
@@ -417,11 +417,11 @@ export default {
       const url = `/api/finances/ledger/v1/ledger`;
 
       try {
-        var response = await this.$toolcase.services.http.get(url, this.filters);
+        var response = await this.$getService('toolcase/http').get(url, this.filters);
         this.data = response.data;
       } catch (error) {
         this.Table.setError(error);
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
         console.error("An error occurred while attempting to retrieve the object's data.", error);
       } finally {
         this.Table.loadState(false);
@@ -430,7 +430,7 @@ export default {
 
     async getCategories() {
       try {
-        const response = await this.$toolcase.services.http.get(this.$finances.ENDPOINTS.FIN.CATEGORY)
+        const response = await this.$getService('toolcase/http').get(this.$finances.ENDPOINTS.FIN.CATEGORY)
         if (response && response.data) {
           this.categories = response.data.map((cat) => ({
             label: cat.ds_title,
@@ -438,7 +438,7 @@ export default {
           }));
         }
       } catch (error) {
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
         console.error("An error occurred while attempting to retrieve the object's data.", error);
       }
     },
@@ -481,7 +481,7 @@ export default {
         if (confirm === false) return false;
       }
       // Validation
-      if (!this.$toolcase.services.utils.validateForm(this.input, this.inputError) |
+      if (!this.$getService('toolcase/utils').validateForm(this.input, this.inputError) |
         !this.validateRepetition()) {
         return false
       };
@@ -501,8 +501,8 @@ export default {
 
         if (!!this.edditingItemKey) {
           // UPDATE
-          await this.$toolcase.services.http.put(`/api/finances/ledger/v1/entry/${this.edditingItemKey}/${mode}`, data);
-          this.$toolcase.services.utils.notify({
+          await this.$getService('toolcase/http').put(`/api/finances/ledger/v1/entry/${this.edditingItemKey}/${mode}`, data);
+          this.$getService('toolcase/utils').notify({
             message: update_message,
             type: 'positive',
             position: 'top-right'
@@ -510,8 +510,8 @@ export default {
         } else {
           delete data.refDate;
           //CREATE
-          await this.$toolcase.services.http.post(`/api/finances/ledger/v1/entry/${type}`, data);
-          this.$toolcase.services.utils.notify({
+          await this.$getService('toolcase/http').post(`/api/finances/ledger/v1/entry/${type}`, data);
+          this.$getService('toolcase/utils').notify({
             message: create_message,
             type: 'positive',
             position: 'top-right'
@@ -521,7 +521,7 @@ export default {
         this.loadData();
         this.showModal = false;
       } catch (error) {
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
         console.error(error);
         this.Table.loadState(false);
       }
@@ -570,8 +570,8 @@ export default {
 
       // Api Request
       try {
-        await this.$toolcase.services.http.delete(`/api/finances/ledger/v1/entry/${data.ds_key}/${mode}/${data.dt_transaction}`);
-        this.$toolcase.services.utils.notify({
+        await this.$getService('toolcase/http').delete(`/api/finances/ledger/v1/entry/${data.ds_key}/${mode}/${data.dt_transaction}`);
+        this.$getService('toolcase/utils').notify({
           message: delete_message,
           type: 'positive',
           position: 'top-right'
@@ -579,7 +579,7 @@ export default {
 
         this.loadData();
       } catch (error) {
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
         console.error("An error occurred while attempting to delete the object.", error);
         this.Table.loadState(false);
       }
