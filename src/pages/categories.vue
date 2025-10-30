@@ -20,8 +20,8 @@ export default {
     this.$getService('iam/auth').authenticate();
     if (this.$moduleExists('iam')) {
       const permissions = this.$getService('iam/permissions');
-      if (this.$getService('iam/permissions').validatePermissions({ 'FNC_CATEGORY': 'R' })) {
-        this.$router.push('/forbidden');
+      if (!this.$getService('iam/permissions').validatePermissions({ 'FNC_CATEGORY': 'R' })) {
+        this.$router.push('/error/forbidden');
       }
     }
   },
