@@ -144,7 +144,7 @@ export default {
       if (!this.$getService('toolcase/utils').validateForm(this.input, this.inputError)) { return false };
 
       // Emitting the loading event
-      this.$emit('load', 'item-save');
+      this.$getService('toolcase/loader').load( 'item-save');
 
       // Setting data for upload
       let data = new FormData();
@@ -178,7 +178,7 @@ export default {
         console.error('An error occurred while attempting to create/update the object.', error);
       } finally {
         // Finalizing the loading event
-        this.$emit('loaded', 'item-save');
+        this.$getService('toolcase/loader').loaded( 'item-save');
       }
     },
 
@@ -187,7 +187,7 @@ export default {
       if (!confirm('Deseja excluir as informações?')) return false;
 
       // Emitting the loading event
-      this.$emit('load', 'item-remove');
+      this.$getService('toolcase/loader').load( 'item-remove');
 
       // Api Request
       try {
@@ -203,7 +203,7 @@ export default {
         console.error("An error occurred while attempting to delete the object.", error);
       } finally {
         // Finalizing the loading event
-        this.$emit('loaded', 'item-remove');
+        this.$getService('toolcase/loader').loaded( 'item-remove');
       };
     },
   }
